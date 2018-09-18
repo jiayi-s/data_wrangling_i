@@ -1,0 +1,10 @@
+---
+title: "data_wrangling_i"
+author: "Jiayi Shen"
+date: "9/18/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+```
