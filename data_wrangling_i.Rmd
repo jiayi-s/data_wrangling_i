@@ -41,9 +41,32 @@ In the console panel, can use 'View(litters_data)' command to view the current d
 \
 
 ## Other data file formats
+For example, Excel\
 
-```{r}
+```{r read_excel_files}
 library(readxl)
-mlb11_data = read_excel("./data/mlb11.xlsx", n_max = 20)
+mlb11_data = readxl::read_excel("./data/mlb11.xlsx", n_max = 20)
+mlb11_selected = readxl::read_excel("./data/mlb11.xlsx", range = "A1:E17")
+head(mlb11_data, 5)
+```
+
+Then, SAS
+```{r read_SAS_files}
+library(haven)
+pulse_data = read_sas("./data/public_pulse_data.sas7bdat")
+head(pulse_data, 5)
+```
+
+
+## Compare with base R
+```{r}
+pups_base = read.csv("./data/FAS_pups.csv")
+pups_readr = read_csv("./data/FAS_pups.csv")
+
+pups_base
+### prints out all lines
+pups_readr
+### prints out first few lines
+
 ```
 
