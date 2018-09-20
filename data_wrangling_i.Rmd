@@ -68,5 +68,10 @@ pups_base
 pups_readr
 ### prints out first few lines
 
+
+pups_base$S
+
+pups_readr$S
+
 ```
 
