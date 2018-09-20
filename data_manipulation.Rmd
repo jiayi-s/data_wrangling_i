@@ -23,3 +23,44 @@ pups_data = janitor::clean_names(pups_data)
 
 ```
 
+
+## Select variables
+
+```{r}
+select(litters_data, group, litter_number, gd0_weight, pups_born_alive)
+```
+
+
+... by specifying a range:
+```{r}
+select(litters_data, group:gd_of_birth)
+select(litters_data, group, gd_of_birth:pups_survive)
+```
+
+
+... by saing what you want to remove:
+```{r}
+select(litters_data, -litter_number)
+```
+
+select and rename in the same process:
+```{r}
+select(litters_data, GROUP = group, LiTtEr_NuMbEr = litter_number)
+rename(litters_data, LiTtEr_NuMbEr = litter_number)
+```
+
+... use select helpers:
+```{r}
+select(litters_data, starts_with("gd"))
+select(litters_data, litter_number, starts_with("pup"))
+
+# moving one coloum to the left and everything else follows.
+select(litters_data, litter_number, everything())
+```
+
+
+in-class assessment 1:
+```{r}
+select(pups_data, litter_number, sex, pd_ears)
+```
+
