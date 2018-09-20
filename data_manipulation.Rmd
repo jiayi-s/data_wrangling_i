@@ -91,3 +91,84 @@ filter(pups_data, pd_walk < 11, sex == 2)
 ```
 
 ## Mutate
+create varialbes 
+
+```{r}
+mutate(litters_data,
+       wt_gain = gd18_weight - gd0_weight,#create new variable based on old varialbes
+       group = tolower(group) #tolower makes everything lower case. 
+       )
+
+mutate(litters_data,
+       wt_gain = gd18_weight - gd0_weight,
+       wt_gain_squared = wt_gain^2
+      )
+```
+
+## Arrange
+```{r}
+arrange(litters_data, gd0_weight)
+
+#organizing in the descending order
+arrange(litters_data, pups_born_alive, desc(gd0_weight))
+```
+
+
+## Piping
+
+look at intermediate object approach:
+```{r}
+litters_data_raw = read_csv("./data/FAS_litters.csv",
+  col_types = "ccddiiii")
+litters_data_clean_names = janitor::clean_names(litters_data_raw)
+litters_data_selected_cols = select(litters_data_clean_names, -pups_survive)
+litters_data_with_vars = mutate(litters_data_selected_cols, 
+  wt_gain = gd18_weight - gd0_weight,
+  group = tolower(group))
+litters_data_with_vars
+```
+intermediate object approach takes up unnecessary working space.\
+\
+\
+now use nested function calls:
+```{r}
+litters_data_clean = 
+  mutate(
+    select(
+      janitor::clean_names(
+        read_csv("./data/FAS_litters.csv", col_types = "ccddiiii")
+        ), 
+    -pups_survive
+    ),
+  wt_gain = gd18_weight - gd0_weight,
+  group = tolower(group)
+  )
+litters_data_clean
+```
+Same data processing as the previous approach, but neither of these are easy to read.
+
+
+Use Piping!!
+hot key for "%>%" : shift+command+M
+```{r}
+  read_csv("./data/FAS_litters.csv", col_types = "ccddiiii") %>%
+  janitor::clean_names(dat = .) %>%
+  select(.data = ., -pups_survive) %>%
+  mutate(.data = .,
+    wt_gain = gd18_weight - gd0_weight,
+    group = tolower(group))
+```
+
+placeholder . 
+lm : linear holder function
+```{r}
+processed_litters_data =   
+read_csv("./data/FAS_litters.csv", col_types = "ccddiiii") %>%
+  janitor::clean_names(dat = .) %>%
+  select(.data = ., -pups_survive) %>%
+  mutate(.data = .,
+    wt_gain = gd18_weight - gd0_weight,
+    group = tolower(group)) %>% 
+  lm( gd0_weight ~ gd18_weight, data = .)
+```
+
