@@ -1,0 +1,100 @@
+---
+title: "Data Tidying"
+author: "Jiayi Shen"
+date: "9/25/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+
+pulse_data = haven::read_sas("./data/public_pulse_data.sas7bdat") %>% janitor::clean_names()
+
+```
+
+
+Trying to get four rows for each subjects: bl, 1m, 6m, 12m.
+`Gather`
+
+```{r}
+tidy = pulse_data %>% gather( key="visit", value = "bdi_score", bdi_score_bl:bdi_score_12m) 
+```
+
+
+`separate`
+```{r}
+tidy %>% 
+  separate(visit, into = c("remove_1", "remove_2", "visit"), sep = "_") %>%
+  mutate(visit = replace(visit, visit == "bl", "00m"),
+         visit = factor(visit, levels = str_c(c("00", "01", "06", "12"), "m"))) %>%
+  arrange(id, visit)
+```
+
+`group`
+```{r}
+litters_data = read_csv("./data/FAS_litters.csv", col_types = "ccddiiii") 
+litters_data %>% 
+  janitor::clean_names() %>% 
+  select(litter_number, ends_with("weight")) %>% 
+  gather (key = "gd", value = "weight", gd0_weight:gd18_weight) %>% 
+  mutate(gd = recode(gd, "gd0_weight" = 0, "gd18_weight" = 18))
+  
+```
+
+`spread`
+```{r}
+analysis_result = tibble(
+  group = c("treatment", "treatment", "placebo", "placebo"),
+  time = c("pre", "post", "pre", "post"),
+  mean = c(4, 8, 3.5, 4)
+)
+spread(analysis_result, key = time, value = mean)
+
+```
+
+Building rows
+```{r}
+library(readxl)
+fellowship_ring = read_excel("./data/LotR_Words.xlsx", range = "B3:D6") %>%
+  janitor::clean_names() %>%
+  gather(key = sex, value = words, female:male) %>%
+  mutate(race = tolower(race),
+         movie = "Fellowship")
+
+two_towers = read_excel("./data/LotR_Words.xlsx", range = "F3:H6") %>%
+  janitor::clean_names() %>%
+  gather(key = sex, value = words, female:male) %>%
+  mutate(race = tolower(race),
+         movie = "Two Towers")
+
+return_king = read_excel("./data/LotR_Words.xlsx", range = "J3:L6") %>%
+  janitor::clean_names() %>%
+  gather(key = sex, value = words, female:male) %>%
+  mutate(race = tolower(race),
+         movie = "Return")
+
+```
+
+
+```{r}
+pup_data = read_csv("./data/FAS_pups.csv", col_types = "ciiiii") %>%
+  janitor::clean_names() %>%
+  mutate(sex = recode(sex, `1` = "male", `2` = "female")) 
+
+litter_data = read_csv("./data/FAS_litters.csv", col_types = "ccddiiii") %>%
+  janitor::clean_names() %>%
+  select(-pups_survive) %>%
+  mutate(
+    wt_gain = gd18_weight - gd0_weight,
+    group = tolower(group))
+
+FAS_data = left_join(pup_data, litter_data, by = "litter_number")
+```
+
